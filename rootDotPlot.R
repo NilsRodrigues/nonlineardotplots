@@ -3,7 +3,7 @@ if (!exists("sweepDotplot"))
   source("sweepDotplot.R")
 
 
-# class for logarithmic dotplots
+# class for root dotplots
 rootDotplot = setRefClass(
   Class = "rootDotplot",
   contains = "sweepDotplot",
