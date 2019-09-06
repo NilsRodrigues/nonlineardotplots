@@ -40,4 +40,3 @@ if (T) {
   plot$dynamicPlot(samples)
   #plot$plotToPdf(samples, "direct")
 }
-
