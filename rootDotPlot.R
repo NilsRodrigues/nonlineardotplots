@@ -2,6 +2,7 @@
 if (!exists("sweepDotplot"))
   source("sweepDotplot.R")
 
+
 # class for root dotplots
 rootDotplot = setRefClass(
   Class = "rootDotplot",

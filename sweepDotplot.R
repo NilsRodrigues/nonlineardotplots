@@ -5,6 +5,7 @@ if (!exists("baseDotplot"))
 # imports
 library(manipulate)
 
+
 # base class with parameters
 sweepDotplot <- setRefClass(
   Class = "sweepDotplot",
@@ -23,7 +24,7 @@ sweepDotplot <- setRefClass(
 
     upwardsPass = function(data) {
       # create the columns
-      columns = .self$initializeColumns()
+      columns = list()
       diameter = .self$startDiameter
       height = 1
       position = data[1]
@@ -33,8 +34,8 @@ sweepDotplot <- setRefClass(
         if (data[i] - position < diameter) {
           height = height + 1
         } else {
-          columns <- .self$addColumn(columns, height, position, diameter, data[(i-height):(i-1)])
-          #containedValues[[length(containedValues) + 1]] <- ]
+          newColumn = .self$createColumn(height, position, diameter, data[(i-height):(i-1)])
+          columns[[length(columns) + 1]] <- newColumn
 
           height = 1
           position = data[i]
@@ -42,19 +43,20 @@ sweepDotplot <- setRefClass(
       }
 
       # finish the last column
-      columns <- .self$addColumn(columns,
+      lastColumn = createColumn(
         height,
         position,
         .self$getDotDiameter(height),
-        data[(length(data) - height):length(data)]
+        data[length(data) - height:length(data)]
       )
+      columns[[length(columns) + 1]] <- lastColumn
 
       return(columns)
     },
 
     downwardsPass = function(data) {
       # create the columns
-      columns = .self$initializeColumns()
+      columns = list()
       diameter = .self$startDiameter
       height = 1
       position = data[length(data)]
@@ -64,63 +66,54 @@ sweepDotplot <- setRefClass(
         if (position - data[i] < diameter) {
           height = height + 1
         } else {
-          columns = .self$addColumn(columns, height, position, diameter, data[(i+1):(i+height)])
+            newColumn = .self$createColumn(height, position, diameter, data[(i+1):(i+height)])
+            columns[[length(columns) + 1]] <- newColumn
 
-          height = 1
-          position = data[i]
+            height = 1
+            position = data[i]
         }
       }
 
       # finish the last column
-      columns = .self$addColumn(
-        columns,
+      lastColumn = .self$createColumn(
         height,
         position,
         .self$getDotDiameter(height),
-        data[(length(data) - height):length(data)]
+        data[length(data) - height:length(data)]
       )
+      columns[[length(columns) + 1]] <- lastColumn
 
       return(columns)
     },
 
     mergePasses = function(upwards, downwards, data) {
-      assertthat::are_equal(nrow(upwards$columns), nrow(downwards$columns))
-      colCount = nrow(upwards$columns)
-      both = upwards
+      merged = upwards
       remainder = 0.0
       mergedValueCount = 0L
 
-      # Position can be simply averaged
-      both$columns[,"position"] <- (upwards$columns[,"position"] + rev(downwards$columns[,"position"])) / 2
-
-      remainder = 0.0
-      for (i in 1:colCount) {
-        up = upwards$columns[i,]
-        down = downwards$columns[colCount-i+1,]
-        merged = both$columns[i,]
+      for (i in 1:length(merged)) {
+        up = upwards[[i]]
+        down = downwards[[i]]
 
         # Position can be simply averaged
-        #merged[[i]]$"position" <- (up$position + down$position) / 2
+        merged[[i]]$"position" <- (up$position + down$position) / 2
 
         # Height has to be an integral number.
         # Could have a remainder of 0.5. Carry it on until the next remainder.
-        exactHeight = (up["height"] + down["height"]) / 2 + remainder
+        exactHeight = (up$height + down$height) / 2 + remainder
         roundedHeight = as.integer(floor(exactHeight))
-        merged["height"] <- roundedHeight
+        merged[[i]]$height <- roundedHeight
         remainder = exactHeight - roundedHeight
 
-        # Calculate current diameter for new height
-        merged["diameter"] <- .self$getDotDiameter(roundedHeight)
-
         # Get the data that is contained in this column
-        both$data[[i]] <- data[(mergedValueCount + 1):(mergedValueCount + roundedHeight)]
-        merged["dataIndex"] <- i
+        merged[[i]]$containedValues <- data[(mergedValueCount + 1):(mergedValueCount + roundedHeight)]
         mergedValueCount = mergedValueCount + roundedHeight;
 
-        both$columns[i,] = merged
+        # Calculate current diameter for new height
+        merged[[i]]$diameter <- .self$getDotDiameter(roundedHeight)
       }
 
-      return(both)
+      return(merged)
     },
 
     layout = function(data) {
