@@ -1,24 +1,43 @@
 # imports
 source("rootDotplot.R")
-
-
-
-# generates random samples
-randomSamples = function (count, mean) {
-  samples = rnorm(n=count, mean=mean, sd=mean/2)
-  return(samples)
-}
+source("logDotplot.R")
 
 # generate input data
 set.seed(1234)
-samples = randomSamples(10000, 20)
+samples = rnorm(n=10000, mean=20, sd=2)
 samples = sort(samples)
+
+# plot KDE of sample data
+if (F) {
+  # check if package is installed
+  prerequisites = c("ks")
+  missingPrerequisites = prerequisites[!(prerequisites %in% installed.packages()[, "Package"])]
+  if (length(missingPrerequisites))
+    install.packages(missingPrerequisites)
+
+  # load package
+  library("ks")
+
+  # plot sample distribution
+  plot(kde(samples, h=0.05))
+}
+
 
 # root
 if (T) {
-  root = rootDotplot()
-  root$shrinkRate = 0.4
-  root$dynamicPlot(samples)
-  root$plotToPdf(samples, "direct")
+  plot = rootDotplot()
+  plot$shrinkRate = 0.4
+  #plot$plot(samples)
+  plot$dynamicPlot(samples)
+  #plot$plotToPdf(samples, "direct")
+}
+
+# log
+if (T) {
+  plot = logDotplot()
+  plot$logBase = 2
+  #plot$plot(samples)
+  plot$dynamicPlot(samples)
+  #plot$plotToPdf(samples, "direct")
 }
 

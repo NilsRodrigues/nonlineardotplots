@@ -18,21 +18,34 @@ baseDotplot <- setRefClass(
       .self$useAspectRatio <- FALSE
       .self$targetAspectRatio <- 16/9
       .self$spacing <- 0.1
-      .self$maxYAxisTicks <- 5
+      .self$maxYAxisTicks <- 6
     },
 
-    createColumn = function(
-      height,
-      position,
-      diameter,
-      samples = vector(mode="numeric")) {
-      return(list(
-        height = height,
-        position = position,
-        diameter = diameter,
-        start = position - (diameter / 2),
-        end = position + (diameter / 2),
-        samples = samples))
+    initializeColumns = function() {
+      cols = matrix(data=1, nrow=0, ncol=6)
+      colnames(cols) = c("height", "position", "diameter", "start", "end", "dataIndex")
+
+      wrapper = list()
+      wrapper$columns <- cols
+      wrapper$data <- list()
+      return (wrapper)
+    },
+    addColumn = function(columns, height, position, diameter, containedDataValues) {
+      index = nrow(columns$columns)+1
+
+      columns$columns <- rbind(
+        columns$columns,
+        c(
+          height,
+          position,
+          diameter,
+          position - diameter/2,
+          position + diameter/2,
+          index)
+        )
+      columns$data[[index]] <- containedDataValues
+
+      return(columns)
     },
 
     plotColumns = function(columns, measure) {
@@ -45,39 +58,51 @@ baseDotplot <- setRefClass(
       xAxis()
 
       # draw each column
-      lapply(columns, function(column) { plotColumn(column$position, column$height, column$diameter) })
+      xRange = measure$maxX - measure$minX
+      apply(
+        columns$columns,
+        1,
+        function(column) {
+          plotColumn(
+            column["position"],
+            column["height"],
+            column["diameter"]
+          )
+        })
     },
 
     plotColumn = function (x, height, diameter) {
       radius = diameter / 2;
+      dotSize = radius * (1 - .self$spacing)
 
-      xSet = vector(mode="numeric", height)
-      ySet = vector(mode="numeric", height)
       radiusSet = vector(mode="numeric", height)
-
-      for (i in 1:height) {
-        xSet[i] = x
-        ySet[i] = i * diameter - radius
-        radiusSet[i] = radius * (1 - .self$spacing)
-      }
+      radiusSet[] = dotSize
+      xSet = vector(mode="numeric", height)
+      xSet[] = x
+      ySet = (1:height) * diameter - radius
 
       symbols(xSet, ySet, circles=radiusSet, inches=FALSE, bg="black", fg=NULL, add=TRUE)
+      #symbols(x=x, y=ySet, circles=dotSize, inches=FALSE, bg="black", fg=NULL, add=TRUE)
     },
 
     measurePlot = function(columns) {
+      cols = columns$columns
+
       # get vectors to the column list content
-      positions = unlist(lapply(columns, "[[", "position"))
-      heights = unlist(lapply(columns, "[[", "height"))
-      diameters = unlist(lapply(columns, "[[", "diameter"))
+      #positions = unlist(lapply(columns, "[[", "position"))
+      #heights = unlist(lapply(columns, "[[", "height"))
+      #diameters = unlist(lapply(columns, "[[", "diameter"))
 
       # find the margins of the plot
-      minX = min(positions) - .self$startDiameter / 2
-      maxX = max(positions) + .self$startDiameter / 2
-      minY = 0
-      maxY = max(heights * diameters)
+
+      minX = min(cols[,"position"]) - max(cols[,"diameter"]) / 2
+      maxX = max(cols[,"position"]) + max(cols[,"diameter"]) / 2
       deltaX = maxX - minX
+
+      maxHeight = max(cols[,"height"])
+      minY = 0
+      maxY = max(cols[,"height"] * cols[,"diameter"])
       deltaY = maxY - minY
-      maxHeight = max(heights)
 
       return(list(
         minX = minX, maxX = maxX,
@@ -97,27 +122,24 @@ baseDotplot <- setRefClass(
       # }
       # else {
       axis(side=1, lwd=0, lwd.ticks=1)
-      axis(side=3, lwd=0, lwd.ticks=1)
+      #axis(side=3, lwd=0, lwd.ticks=1)
       # }
     },
     yAxis = function (maxHeight) {
       tickCount = min(maxHeight, .self$maxYAxisTicks)
-      stepWidth = (maxHeight - 1) / tickCount
-      diameter = .self$startDiameter
-      radius = .self$startDiameter / 2
+      step = (maxHeight-1) / (tickCount-1)
 
-      ticks = vector(mode="numeric", tickCount + 1)
-      labels = vector(mode="numeric", tickCount + 1)
+      ticks = vector(mode="numeric", tickCount+1)
+      labels = vector(mode="numeric", tickCount+1)
 
-      ticks[1] = 1 * diameter - radius
-      labels[1] = 1
       for (i in 1:tickCount) {
-        ticks[i + 1] = floor(i * stepWidth) * diameter - radius
-        labels[i + 1] = floor(i * stepWidth)
+        dotCount = floor(1 + step * (i-1))
+        labels[i] = dotCount
+        ticks[i] = .self$getDotDiameter(dotCount) * dotCount
       }
 
       axis(side=2, at=ticks, labels=labels, lwd=0, lwd.ticks=1)
-      axis(side=4, lwd=0, lwd.ticks=1)
+      #axis(side=4, at=ticks, labels=labels, lwd=0, lwd.ticks=1)
     }
   )
 )
