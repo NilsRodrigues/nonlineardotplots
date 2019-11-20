@@ -1,4 +1,4 @@
-﻿# get source file for base dot plot
+# get source file for base dot plot
 if (!exists("sweepDotplot"))
   source("sweepDotplot.R")
 
