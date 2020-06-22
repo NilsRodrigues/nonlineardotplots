@@ -1,6 +1,6 @@
 # Nonlinear Dot Plots
-This is a sample R implementation of the algorithm described in "Nonlinear Dot Plots" by [Nils Rodrigues](http://www.visus.uni-stuttgart.de/en/institute/people/research-associates/nils-rodrigues.html) and 
-[Daniel Weiskopf](http://www.visus.uni-stuttgart.de/~weiskopf/).
+This is a sample R implementation of the algorithm described in "Nonlinear Dot Plots" by [Nils Rodrigues](https://www.visus.uni-stuttgart.de/institut/team/Rodrigues-00001/) and 
+[Daniel Weiskopf](https://www.vis.uni-stuttgart.de/en/institute/team/Weiskopf-00007/).
 
 Use the provided root dot plot, create a class instance and call "plot" with your 1-dimensional data. If you are using RStudio, the plot might not be rendered with the correct aspect ratio. Use "plotToPdf" instead to get the image as it was intended to be.
 Call "dynamicPlot" to use the "manipulate" package with RStudio and adapt the plot on-the-fly.
