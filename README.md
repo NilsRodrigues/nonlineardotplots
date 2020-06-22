@@ -1,5 +1,5 @@
 # Nonlinear Dot Plots
-This is a sample R implementation of the algorithm described in "Nonlinear Dot Plots" by [Nils Rodrigues](https://www.visus.uni-stuttgart.de/institut/team/Rodrigues-00001/) and 
+This is a sample R implementation of the algorithm described in "Nonlinear Dot Plots" by [Nils Rodrigues](https://www.visus.uni-stuttgart.de/en/institute/team/Rodrigues-00001/) and 
 [Daniel Weiskopf](https://www.vis.uni-stuttgart.de/en/institute/team/Weiskopf-00007/).
 
 Use the provided root dot plot, create a class instance and call "plot" with your 1-dimensional data. If you are using RStudio, the plot might not be rendered with the correct aspect ratio. Use "plotToPdf" instead to get the image as it was intended to be.
@@ -29,6 +29,6 @@ If you are not able to find the citation info on the website, use the data from 
 # Paper Download
 To read the article, please download it directly from the publisher (follow the DOI) or from the authors' websites:
 
-[Nils Rodrigues](https://www.visus.uni-stuttgart.de/institut/team/Rodrigues-00001/)
+[Nils Rodrigues](https://www.visus.uni-stuttgart.de/en/institute/team/Rodrigues-00001/)
 
 [Daniel Weiskopf](https://www.vis.uni-stuttgart.de/en/institute/team/Weiskopf-00007/)
